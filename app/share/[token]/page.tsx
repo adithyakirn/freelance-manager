@@ -1,7 +1,7 @@
 import { getProjectByToken } from "@/app/actions/share";
 import { fetchGitHubCommits } from "@/app/actions/git";
 import { notFound } from "next/navigation";
-import { Calendar, DollarSign, CheckCircle } from "lucide-react";
+import { Calendar, DollarSign, CheckCircle, Clock } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SharedPhaseList } from "@/components/SharedPhaseList";
 import { SharedDesignsSection } from "@/components/SharedDesignsSection";
@@ -108,10 +108,19 @@ export default async function SharePage({
 
   // Payments
   const payments = project.payments || [];
-  const totalPaid = payments.reduce(
+  const totalAdvances = payments.reduce(
     (acc: number, p: any) => acc + Number(p.amount),
     0,
   );
+
+  // Calculate financial totals
+  const totalPhaseAmount = (project.phases || []).reduce(
+    (acc: number, phase: any) => acc + Number(phase.amount || 0),
+    0,
+  );
+
+  const totalReceived = totalAdvances; // In this context, total received is the sum of payments
+  const remaining = totalPhaseAmount - totalReceived;
 
   return (
     <div className="min-h-screen p-4 lg:p-8 pt-16 lg:pt-8 bg-[#0A0A0A]">
