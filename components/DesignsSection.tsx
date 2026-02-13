@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Upload, Image as ImageIcon, Plus } from "lucide-react";
+import { Upload, Image as ImageIcon, Plus, Loader2, X } from "lucide-react";
 import { addDesign } from "@/app/actions/project-updates";
+import { createClient } from "@/utils/supabase/client";
 
 interface Design {
   id: string;
@@ -110,70 +111,93 @@ function AddDesignButton({
   projectId: string;
   loginType: string;
 }) {
-  const [showInput, setShowInput] = useState(false);
-  const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleAdd = async () => {
-    if (!url) return;
-    setLoading(true);
-    await addDesign(projectId, "", url, loginType);
-    setLoading(false);
-    setShowInput(false);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const supabase = createClient();
+    const fileName = `designs/${projectId}/${Date.now()}_${file.name}`;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from("uploads")
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("uploads").getPublicUrl(fileName);
+
+      await addDesign(projectId, "", publicUrl, loginType);
+    } catch (error) {
+      console.error("Error uploading design:", error);
+      alert("Failed to upload design");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  if (showInput) {
-    return (
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Paste URL"
-          className="bg-neutral-800 border-none rounded px-2 py-1 text-sm text-white w-32"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button
-          onClick={handleAdd}
-          disabled={loading}
-          className="text-xs bg-[#FF7A00] text-white px-2 rounded"
-        >
-          {loading ? "..." : "Save"}
-        </button>
-        <button
-          onClick={() => setShowInput(false)}
-          className="text-xs text-gray-400"
-        >
-          Cancel
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <button
-      onClick={() => setShowInput(true)}
-      className="btn-outline text-sm py-2 px-4"
+    <label
+      className={`btn-outline text-sm py-2 px-4 cursor-pointer ${
+        isUploading ? "opacity-50 cursor-not-allowed" : ""
+      }`}
     >
-      <Upload className="w-4 h-4 mr-1 inline" />
-      Upload
-    </button>
+      {isUploading ? (
+        <Loader2 className="w-4 h-4 mr-1 inline animate-spin" />
+      ) : (
+        <Upload className="w-4 h-4 mr-1 inline" />
+      )}
+      {isUploading ? "Uploading..." : "Upload"}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        disabled={isUploading}
+        className="hidden"
+      />
+    </label>
   );
 }
 
 function AddCustomDesignButton({ projectId }: { projectId: string }) {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleAdd = async () => {
-    if (!url || !title) return;
+    if (!file || !title) return;
     setLoading(true);
-    await addDesign(projectId, title, url, "custom");
-    setLoading(false);
-    setShowForm(false);
-    setTitle("");
-    setUrl("");
+
+    const supabase = createClient();
+    const fileName = `designs/${projectId}/${Date.now()}_${file.name}`;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from("uploads")
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("uploads").getPublicUrl(fileName);
+
+      await addDesign(projectId, title, publicUrl, "custom");
+      setShowForm(false);
+      setTitle("");
+      setFile(null);
+    } catch (error) {
+      console.error("Error adding custom design:", error);
+      alert("Failed to add design");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (showForm) {
@@ -182,28 +206,50 @@ function AddCustomDesignButton({ projectId }: { projectId: string }) {
         <input
           type="text"
           placeholder="Design Title"
-          className="w-full bg-neutral-800 border-none rounded px-3 py-2 text-sm text-white"
+          className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:outline-none transition-colors"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="URL"
-          className="w-full bg-neutral-800 border-none rounded px-3 py-2 text-sm text-white"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
+
+        {file ? (
+          <div className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+            <ImageIcon className="w-5 h-5 text-blue-500 shrink-0" />
+            <span className="text-sm text-blue-400 truncate flex-1">
+              {file.name}
+            </span>
+            <button
+              onClick={() => setFile(null)}
+              className="text-gray-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <label className="flex items-center gap-3 p-4 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-blue-500/50 transition-colors">
+            <Upload className="w-5 h-5 text-gray-500" />
+            <span className="text-sm text-gray-400">Upload design image</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files?.[0] && setFile(e.target.files[0])
+              }
+              className="hidden"
+            />
+          </label>
+        )}
+
         <div className="flex gap-2 justify-end">
           <button
             onClick={() => setShowForm(false)}
-            className="text-sm text-gray-400"
+            className="text-sm text-gray-400 hover:text-white px-3 py-2"
           >
             Cancel
           </button>
           <button
             onClick={handleAdd}
-            disabled={loading}
-            className="btn-primary text-sm py-1 px-3"
+            disabled={loading || !file || !title}
+            className="btn-primary text-sm py-2 px-4 disabled:opacity-50"
           >
             {loading ? "Adding..." : "Add Design"}
           </button>

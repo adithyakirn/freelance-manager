@@ -17,6 +17,7 @@ import { ApproveProjectButton } from "@/components/ApproveProjectButton";
 import { DeleteProjectButton } from "@/components/DeleteProjectButton";
 import { PaymentsSection } from "@/components/PaymentsSection";
 import { ShareButton } from "@/components/ShareButton";
+import { QuotationModal } from "@/components/QuotationModal";
 export default async function ProjectDetailPage({
   params,
 }: {
@@ -58,6 +59,12 @@ export default async function ProjectDetailPage({
     .reduce((acc: number, p: any) => acc + Number(p.amount), 0);
   const totalReceived = totalPaidPhases + totalAdvances;
   const remaining = totalPhaseAmount - totalReceived;
+
+  // Sort phases by created_at
+  const sortedPhases = [...(project.phases || [])].sort(
+    (a: any, b: any) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  );
 
   return (
     <div className="min-h-screen p-4 lg:p-8 pt-16 lg:pt-8">
@@ -122,16 +129,7 @@ export default async function ProjectDetailPage({
             />
             <DeleteProjectButton projectId={project.id} />
             {project.quotation_url && (
-              <a
-                href={project.quotation_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <button className="btn-outline flex items-center gap-2 w-full lg:w-auto justify-center">
-                  <FileText className="h-4 w-4" />
-                  View Quotation
-                </button>
-              </a>
+              <QuotationModal url={project.quotation_url} />
             )}
           </div>
         </div>
@@ -204,7 +202,7 @@ export default async function ProjectDetailPage({
           <h2 className="text-lg font-semibold text-white font-display">
             Project Phases
           </h2>
-          <PhasesSection projectId={project.id} phases={project.phases} />
+          <PhasesSection projectId={project.id} phases={sortedPhases} />
         </div>
 
         {/* Logins / Designs Section */}

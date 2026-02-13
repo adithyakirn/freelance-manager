@@ -117,6 +117,8 @@ export function PaymentsSection({
       setReceiptUrl("");
       setReceiptFile(null);
       setShowAddModal(false);
+    } else {
+      alert(`Failed to add payment: ${result.error}`);
     }
 
     setLoading(false);
@@ -291,7 +293,7 @@ export function PaymentsSection({
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         placeholder="10000"
-                        className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl pl-8 pr-4 py-3 text-white placeholder:text-gray-500 focus:border-green-500/50 focus:outline-none transition-colors"
+                        className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-gray-500 focus:border-green-500/50 focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
