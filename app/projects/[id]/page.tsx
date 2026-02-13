@@ -139,7 +139,7 @@ export default async function ProjectDetailPage({
       </GlassCard>
 
       {/* Financial Summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8 items-start">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5 mb-3 lg:mb-4">
         <GlassCard>
           <div className="flex items-start justify-between">
             <div>
@@ -172,7 +172,7 @@ export default async function ProjectDetailPage({
           </div>
         </GlassCard>
 
-        <GlassCard>
+        <GlassCard className="col-span-2 lg:col-span-1">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
@@ -187,8 +187,10 @@ export default async function ProjectDetailPage({
             </div>
           </div>
         </GlassCard>
+      </div>
 
-        {/* Git Status Card (Replacing Progress Bar) */}
+      {/* Git Status Card - Separate row */}
+      <div className="mb-6 lg:mb-8">
         <GitStatusCard
           projectId={project.id}
           gitRepo={project.git_repo}
