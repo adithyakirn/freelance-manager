@@ -1,8 +1,30 @@
+"use client";
+
 import { signInWithGoogle } from "@/app/actions/auth";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { ArrowRight } from "lucide-react";
+import { Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const code = searchParams.get("code");
+  const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (code) {
+      router.replace(`/auth/callback?code=${code}`);
+    }
+  }, [code, router]);
+
+  if (code) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Signing in...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[hsl(var(--primary)/0.2)] via-background to-background">
       <div className="w-full max-w-md space-y-8">
@@ -23,6 +45,11 @@ export default function LoginPage() {
         </div>
 
         <GlassCard className="p-8 space-y-6">
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md text-center">
+              {error}
+            </div>
+          )}
           <form action={signInWithGoogle}>
             <button
               type="submit"
@@ -67,5 +94,19 @@ export default function LoginPage() {
         </GlassCard>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
