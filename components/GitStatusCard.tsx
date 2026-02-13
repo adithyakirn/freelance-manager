@@ -28,6 +28,7 @@ interface GitStatusCardProps {
   gitRepo?: string;
   lastCommitMsg?: string;
   lastCommitDate?: string;
+  readOnly?: boolean;
 }
 
 export function GitStatusCard({
@@ -35,6 +36,7 @@ export function GitStatusCard({
   gitRepo,
   lastCommitMsg,
   lastCommitDate,
+  readOnly = false,
 }: GitStatusCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [repo, setRepo] = useState(gitRepo || "");
@@ -85,7 +87,7 @@ export function GitStatusCard({
   const displayedCommits = showAllCommits ? commits : commits.slice(0, 5);
 
   // Editing / Setup view
-  if (isEditing || !gitRepo) {
+  if ((isEditing || !gitRepo) && !readOnly) {
     return (
       <GlassCard className="col-span-2 lg:col-span-1">
         <div className="space-y-4">
@@ -152,6 +154,8 @@ export function GitStatusCard({
         </div>
       </GlassCard>
     );
+  } else if (!gitRepo && readOnly) {
+    return null; // Don't show anything if no repo and read-only
   }
 
   // Connected view with commits
@@ -181,12 +185,14 @@ export function GitStatusCard({
               <RefreshCw className="w-4 h-4" />
             )}
           </button>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
-          >
-            Edit
-          </button>
+          {!readOnly && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
 

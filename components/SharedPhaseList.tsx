@@ -139,7 +139,7 @@ export function SharedPhaseList({
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="px-4 pb-4 pt-0 ml-8 border-t border-white/5 mt-2 pt-3 space-y-2">
+                  <div className="px-4 pb-4 ml-17 border-t border-white/5 mt-0 pt-3 space-y-2">
                     {features.map((feature, i) => {
                       const isFeatureCompleted =
                         completedFeatures.includes(feature);
