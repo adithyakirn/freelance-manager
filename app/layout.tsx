@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/utils/cn";
-import { Sidebar } from "@/components/Sidebar";
 
 // Body & Display font - Poppins (used throughout)
 const poppins = Poppins({
@@ -34,13 +33,7 @@ export default function RootLayout({
         <div className="bg-glow" />
         <div className="bg-glow-secondary" />
 
-        {/* Layout with Sidebar */}
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="flex-1 lg:ml-[240px] relative z-10 transition-all duration-300">
-            {children}
-          </main>
-        </div>
+        {children}
       </body>
     </html>
   );

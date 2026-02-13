@@ -197,56 +197,64 @@ export function GitStatusCard({
         </div>
       )}
 
-      {/* Commits list */}
-      <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
-        {displayedCommits.length > 0 ? (
-          displayedCommits.map((commit) => (
-            <a
-              key={commit.id}
-              href={commit.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block bg-[#1A1A1A] p-3 rounded-lg border-l-2 border-[#F05032] hover:bg-[#222] transition-colors group"
-            >
-              <div className="flex items-start gap-2">
-                <GitCommit className="w-4 h-4 text-[#F05032] mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-mono break-words line-clamp-2 group-hover:text-[#F05032] transition-colors">
-                    {commit.message.split("\n")[0]}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                    <span>{commit.author}</span>
-                    <span>•</span>
-                    <span>
-                      {new Date(commit.committed_at).toLocaleDateString(
-                        "en-IN",
-                        {
-                          day: "numeric",
-                          month: "short",
-                        },
-                      )}
-                    </span>
-                    <span className="font-mono text-gray-600">
-                      {commit.sha.substring(0, 7)}
-                    </span>
+      {/* Commits list with fade gradients */}
+      <div className="relative">
+        {/* Top fade gradient */}
+        <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-[#111111] to-transparent z-10 pointer-events-none" />
+
+        <div className="space-y-2 max-h-[280px] overflow-y-auto custom-scrollbar py-4 px-1 -mx-1">
+          {displayedCommits.length > 0 ? (
+            displayedCommits.map((commit) => (
+              <a
+                key={commit.id}
+                href={commit.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-[#1A1A1A] p-3 rounded-lg border-l-2 border-[#F05032] hover:bg-[#222] transition-colors group"
+              >
+                <div className="flex items-start gap-2">
+                  <GitCommit className="w-4 h-4 text-[#F05032] mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white font-mono break-words line-clamp-2 group-hover:text-[#F05032] transition-colors">
+                      {commit.message.split("\n")[0]}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                      <span>{commit.author}</span>
+                      <span>•</span>
+                      <span>
+                        {new Date(commit.committed_at).toLocaleDateString(
+                          "en-IN",
+                          {
+                            day: "numeric",
+                            month: "short",
+                          },
+                        )}
+                      </span>
+                      <span className="font-mono text-gray-600">
+                        {commit.sha.substring(0, 7)}
+                      </span>
+                    </div>
                   </div>
+                  <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-[#F05032] shrink-0" />
                 </div>
-                <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-[#F05032] flex-shrink-0" />
-              </div>
-            </a>
-          ))
-        ) : (
-          <div className="text-center py-6 text-gray-500">
-            <GitCommit className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No commits synced yet</p>
-            <button
-              onClick={handleSync}
-              className="text-[#F05032] text-sm mt-2 hover:underline"
-            >
-              Sync now
-            </button>
-          </div>
-        )}
+              </a>
+            ))
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              <GitCommit className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No commits synced yet</p>
+              <button
+                onClick={handleSync}
+                className="text-[#F05032] text-sm mt-2 hover:underline"
+              >
+                Sync now
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom fade gradient */}
+        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-[#111111] to-transparent z-10 pointer-events-none" />
       </div>
 
       {/* Show more/less button */}

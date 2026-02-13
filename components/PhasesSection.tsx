@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic, useTransition } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
   addPhase,
@@ -19,6 +19,7 @@ import {
   Edit3,
   Square,
   CheckSquare,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -48,6 +49,12 @@ export function PhasesSection({ projectId, phases }: PhasesSectionProps) {
     null,
   );
   const [tempDescription, setTempDescription] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  // Optimistic state for feature toggles
+  const [optimisticFeatures, setOptimisticFeatures] = useState<
+    Record<string, string[]>
+  >({});
 
   const handleAddPhase = async () => {
     if (!phaseName || !phaseAmount) return;
@@ -84,17 +91,37 @@ export function PhasesSection({ projectId, phases }: PhasesSectionProps) {
     setEditingDescription(null);
   };
 
-  const handleToggleFeature = async (
+  const handleToggleFeature = (
     phase: Phase,
     feature: string,
     isCompleted: boolean,
   ) => {
-    await toggleFeatureCompleted(
-      phase.id,
-      projectId,
-      feature.trim(),
-      isCompleted,
-    );
+    // Optimistic update - update UI immediately
+    const currentFeatures =
+      optimisticFeatures[phase.id] ?? phase.completed_features ?? [];
+    const newFeatures = isCompleted
+      ? [...currentFeatures, feature.trim()]
+      : currentFeatures.filter((f) => f !== feature.trim());
+
+    setOptimisticFeatures((prev) => ({
+      ...prev,
+      [phase.id]: newFeatures,
+    }));
+
+    // Then run server action in background
+    startTransition(async () => {
+      await toggleFeatureCompleted(
+        phase.id,
+        projectId,
+        feature.trim(),
+        isCompleted,
+      );
+    });
+  };
+
+  // Get completed features with optimistic state
+  const getCompletedFeatures = (phase: Phase): string[] => {
+    return optimisticFeatures[phase.id] ?? phase.completed_features ?? [];
   };
 
   // Parse features from description (comma-separated)
@@ -106,12 +133,13 @@ export function PhasesSection({ projectId, phases }: PhasesSectionProps) {
       .filter((f) => f.length > 0);
   };
 
-  // Calculate phase completion percentage
+  // Calculate phase completion percentage (using optimistic state)
   const getPhaseProgress = (phase: Phase): number => {
     const features = getFeatures(phase.description);
     if (features.length === 0) return phase.is_completed ? 100 : 0;
+    const completedFeatures = getCompletedFeatures(phase);
     const completed = features.filter((f) =>
-      phase.completed_features?.includes(f),
+      completedFeatures.includes(f),
     ).length;
     return Math.round((completed / features.length) * 100);
   };
@@ -268,8 +296,10 @@ export function PhasesSection({ projectId, phases }: PhasesSectionProps) {
                             ) : features.length > 0 ? (
                               <div className="space-y-2">
                                 {features.map((feature, i) => {
+                                  const completedFeatures =
+                                    getCompletedFeatures(phase);
                                   const isCompleted =
-                                    phase.completed_features?.includes(feature);
+                                    completedFeatures.includes(feature);
                                   return (
                                     <button
                                       key={i}

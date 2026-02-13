@@ -212,12 +212,44 @@ export default async function SharePage({
                               : "Upcoming"}
                         </span>
                       </div>
-                      {/* Show description for current phase */}
-                      {isCurrentPhase && phase.description && (
-                        <p className="text-xs text-gray-400 mt-2 ml-8">
-                          {phase.description}
-                        </p>
-                      )}
+                      {/* Show features for current phase */}
+                      {isCurrentPhase &&
+                        phase.description &&
+                        (() => {
+                          const features = phase.description
+                            .split(",")
+                            .map((f: string) => f.trim())
+                            .filter((f: string) => f.length > 0);
+                          const completedFeatures =
+                            phase.completed_features || [];
+                          if (features.length === 0) return null;
+
+                          return (
+                            <div className="mt-3 ml-8 space-y-1.5">
+                              {features.map((feature: string, i: number) => {
+                                const isFeatureCompleted =
+                                  completedFeatures.includes(feature);
+                                return (
+                                  <div
+                                    key={i}
+                                    className="flex items-center gap-2"
+                                  >
+                                    {isFeatureCompleted ? (
+                                      <CheckCircle className="w-3.5 h-3.5 text-green-400 shrink-0" />
+                                    ) : (
+                                      <div className="w-3.5 h-3.5 rounded-full border border-gray-500 shrink-0" />
+                                    )}
+                                    <span
+                                      className={`text-xs ${isFeatureCompleted ? "text-gray-400 line-through" : "text-gray-300"}`}
+                                    >
+                                      {feature}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                     </div>
                   );
                 })}
