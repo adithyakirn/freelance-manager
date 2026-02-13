@@ -1,65 +1,216 @@
-import Image from "next/image";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { PerformanceChart, BarChart } from "@/components/Charts";
+import { getDashboardStats } from "@/app/actions/dashboard";
+import {
+  TrendingUp,
+  Briefcase,
+  CheckCircle,
+  Clock,
+  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
+} from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const stats = await getDashboardStats();
+  const supabase = await createClient();
+
+  const data = stats || {
+    totalRevenue: 0,
+    activeProjects: 0,
+    completedProjects: 0,
+    pendingProjects: 0,
+    graphData: [],
+  };
+
+  // Fetch recent updates
+  const { data: recentProjects } = await supabase
+    .from("projects")
+    .select("name, status, created_at")
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  // Line chart data
+  const lineChartData = [
+    { label: "Jan", value: 0 },
+    { label: "Feb", value: data.totalRevenue },
+    { label: "Mar", value: 0 },
+  ];
+
+  const barChartData = [
+    { label: "Ongoing", value: data.activeProjects },
+    { label: "Pending", value: data.pendingProjects },
+    { label: "Done", value: data.completedProjects },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen p-4 lg:p-6 pt-16 lg:pt-8 text-foreground max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold font-display">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Overview</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/projects/new">
+            <button className="btn-primary flex items-center gap-2 text-sm">
+              <Plus className="w-5 h-5" />
+              <span className="hidden sm:inline">New Project</span>
+            </button>
+          </Link>
         </div>
-      </main>
+      </div>
+
+      {/* Main Stats - Red "Featured" Card logic from reference */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+        {/* Featured Card - Revenue (Like "Wallet Value" in Ref) */}
+        <GlassCard
+          variant="featured"
+          className="md:col-span-2 lg:col-span-1 flex flex-col justify-between"
+        >
+          <div>
+            <p className="text-white/80 text-sm font-medium mb-1">
+              Total Revenue
+            </p>
+            <h3 className="text-3xl font-bold">
+              ₹{data.totalRevenue.toLocaleString("en-IN")}
+            </h3>
+          </div>
+          <div className="mt-4 flex items-center gap-2 bg-white/20 w-fit px-3 py-1 rounded-full text-sm backdrop-blur-md">
+            <TrendingUp className="w-3 h-3 text-white" />
+            <span>+12.5%</span>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                Active
+              </p>
+              <h3 className="text-2xl font-bold font-display">
+                {data.activeProjects}
+              </h3>
+              <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Projects
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                Completed
+              </p>
+              <h3 className="text-2xl font-bold font-display">
+                {data.completedProjects}
+              </h3>
+              <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" />
+                Paid
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                Pending
+              </p>
+              <h3 className="text-2xl font-bold font-display">
+                {data.pendingProjects}
+              </h3>
+              <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Awaiting
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Chart Area */}
+        <div className="lg:col-span-2 space-y-6">
+          <PerformanceChart
+            data={lineChartData}
+            title="Revenue Growth"
+            subtitle="Monthly Income"
+          />
+          <BarChart
+            data={barChartData}
+            title="Project Status"
+            subtitle="Overview"
+          />
+        </div>
+
+        {/* Right Column - Recent Activity */}
+        <div className="space-y-6">
+          <GlassCard className="h-full">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold font-display">
+                Recent Activity
+              </h3>
+              <Link
+                href="/projects"
+                className="text-sm text-[#D53231] hover:text-white transition-colors"
+              >
+                View All
+              </Link>
+            </div>
+
+            <div className="space-y-4">
+              {recentProjects && recentProjects.length > 0 ? (
+                recentProjects.map((p: any, i: number) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#1C1C1E] flex items-center justify-center flex-shrink-0">
+                      <Briefcase className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold truncate text-white">
+                        {p.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        New project
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-white">Create</p>
+                      <span className="text-xs text-muted-foreground block">
+                        {new Date(p.created_at).toLocaleDateString("en-IN", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-10 text-muted-foreground">
+                  No recent activity
+                </div>
+              )}
+            </div>
+          </GlassCard>
+        </div>
+      </div>
     </div>
   );
 }
