@@ -17,7 +17,7 @@ export async function signInWithGoogle(formData?: FormData) {
 
   if (error) {
     console.error(error);
-    return { error: error.message };
+    redirect(`/login?error=${encodeURIComponent(error.message)}`);
   }
 
   if (data.url) {
