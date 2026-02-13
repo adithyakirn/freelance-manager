@@ -14,9 +14,11 @@ import {
   Menu,
   X,
   PieChart,
+  User,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -34,29 +36,59 @@ export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    async function getUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        setUserProfile(
+          profile || {
+            email: user.email,
+            full_name: user.user_metadata?.full_name,
+          },
+        );
+      }
+    }
+    getUser();
+  }, []);
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
       {/* Logo */}
       <div className="h-20 flex items-center px-6 mb-2">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#D53231] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#D53231]/20">
-            <Briefcase className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-[hsl(var(--primary)/0.1)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           {(!collapsed || isMobile) && (
-            <span className="font-bold text-white text-xl font-display tracking-tight">
-              Freelance<span className="text-[#D53231]">Mgr</span>
+            <span className="font-bold text-foreground text-xl font-display tracking-tight">
+              Freelance<span className="text-[hsl(var(--primary))]">Mgr</span>
             </span>
           )}
         </Link>
         {isMobile && (
           <button
             onClick={() => setMobileOpen(false)}
-            className="ml-auto p-2 text-gray-400 hover:text-white"
+            className="ml-auto p-2 text-muted-foreground hover:text-foreground"
           >
             <X className="w-5 h-5" />
           </button>
@@ -162,16 +194,42 @@ export function Sidebar() {
               collapsed && "justify-center p-2",
             )}
           >
-            <div className="w-8 h-8 rounded-full bg-gray-700 flex-shrink-0" />
-            {!collapsed && (
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  Admin User
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  admin@freelance.com
-                </p>
-              </div>
+            {!userProfile ? (
+              // Loading Skeleton
+              <>
+                <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse flex-shrink-0" />
+                {!collapsed && (
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="h-3.5 w-24 bg-white/10 rounded animate-pulse" />
+                    <div className="h-3 w-32 bg-white/10 rounded animate-pulse" />
+                  </div>
+                )}
+              </>
+            ) : (
+              // Real Data
+              <>
+                <div className="w-8 h-8 rounded-full bg-gray-700 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                  {userProfile.avatar_url ? (
+                    <img
+                      src={userProfile.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+                {!collapsed && (
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
+                      {userProfile.full_name || "User"}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {userProfile.email}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
