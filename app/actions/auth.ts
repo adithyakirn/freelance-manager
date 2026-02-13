@@ -6,7 +6,11 @@ import { headers } from "next/headers";
 
 export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient();
-  const origin = (await headers()).get("origin");
+  const origin =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : (await headers()).get("origin"));
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
