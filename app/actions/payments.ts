@@ -23,8 +23,17 @@ export async function addAdvancePayment(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "User not authenticated" };
+  }
+
   const { error } = await supabase.from("payments").insert({
     project_id: projectId,
+    user_id: user.id,
     amount,
     type: "advance",
     notes: notes || null,

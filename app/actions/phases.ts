@@ -11,8 +11,18 @@ export async function addPhase(
 ) {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    console.error("User not authenticated");
+    return;
+  }
+
   const { error } = await supabase.from("phases").insert({
     project_id: projectId,
+    user_id: user.id,
     name,
     amount,
     description: description || null,
@@ -31,6 +41,14 @@ export async function markPhasePaid(
 ) {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
   // 1. Update phase status
   const { error: phaseError } = await supabase
     .from("phases")
@@ -42,6 +60,7 @@ export async function markPhasePaid(
   // 2. Record payment
   const { error: paymentError } = await supabase.from("payments").insert({
     project_id: projectId,
+    user_id: user.id,
     amount: amount,
     type: "phase_payment",
   });
