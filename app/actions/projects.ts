@@ -10,6 +10,8 @@ export async function createProject(formData: FormData) {
   const name = formData.get("name") as string;
   const status = (formData.get("status") as string) || "ongoing";
   const clientEmail = formData.get("clientEmail") as string;
+  const clientSource = formData.get("clientSource") as string;
+  const workType = formData.get("workType") as string;
   const quotationFile = formData.get("quotation") as File | null;
   const logoFile = formData.get("logo") as File | null;
 
@@ -49,6 +51,8 @@ export async function createProject(formData: FormData) {
       name,
       status,
       client_details: { email: clientEmail },
+      client_source: clientSource || null,
+      work_type: workType || null,
       quotation_url: quotationUrl,
       logo_url: logoUrl,
     });

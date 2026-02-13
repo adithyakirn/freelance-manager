@@ -91,6 +91,109 @@ export function CreateProjectForm() {
         />
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label
+            htmlFor="clientSource"
+            className="text-sm font-medium text-gray-300"
+          >
+            Client Source
+          </label>
+          <select
+            name="clientSource"
+            className={cn(
+              "flex h-11 w-full rounded-[var(--radius-md)] border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white",
+            )}
+          >
+            <option className="bg-[#1C1C1E]" value="">
+              Select source...
+            </option>
+            <option className="bg-[#1C1C1E]" value="referral">
+              Referral
+            </option>
+            <option className="bg-[#1C1C1E]" value="social_media">
+              Social Media
+            </option>
+            <option className="bg-[#1C1C1E]" value="linkedin">
+              LinkedIn
+            </option>
+            <option className="bg-[#1C1C1E]" value="instagram">
+              Instagram
+            </option>
+            <option className="bg-[#1C1C1E]" value="cold_outreach">
+              Cold Outreach
+            </option>
+            <option className="bg-[#1C1C1E]" value="upwork">
+              Upwork
+            </option>
+            <option className="bg-[#1C1C1E]" value="fiverr">
+              Fiverr
+            </option>
+            <option className="bg-[#1C1C1E]" value="website">
+              Website
+            </option>
+            <option className="bg-[#1C1C1E]" value="repeat_client">
+              Repeat Client
+            </option>
+            <option className="bg-[#1C1C1E]" value="other">
+              Other
+            </option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="workType"
+            className="text-sm font-medium text-gray-300"
+          >
+            Type of Work
+          </label>
+          <select
+            name="workType"
+            className={cn(
+              "flex h-11 w-full rounded-[var(--radius-md)] border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white",
+            )}
+          >
+            <option className="bg-[#1C1C1E]" value="">
+              Select type...
+            </option>
+            <option className="bg-[#1C1C1E]" value="web_development">
+              Web Development
+            </option>
+            <option className="bg-[#1C1C1E]" value="mobile_app">
+              Mobile App
+            </option>
+            <option className="bg-[#1C1C1E]" value="ui_ux_design">
+              UI/UX Design
+            </option>
+            <option className="bg-[#1C1C1E]" value="logo_design">
+              Logo Design
+            </option>
+            <option className="bg-[#1C1C1E]" value="branding">
+              Branding
+            </option>
+            <option className="bg-[#1C1C1E]" value="ecommerce">
+              E-commerce
+            </option>
+            <option className="bg-[#1C1C1E]" value="saas">
+              SaaS
+            </option>
+            <option className="bg-[#1C1C1E]" value="wordpress">
+              WordPress
+            </option>
+            <option className="bg-[#1C1C1E]" value="maintenance">
+              Maintenance
+            </option>
+            <option className="bg-[#1C1C1E]" value="consulting">
+              Consulting
+            </option>
+            <option className="bg-[#1C1C1E]" value="other">
+              Other
+            </option>
+          </select>
+        </div>
+      </div>
+
       {/* File Uploads */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="space-y-2">

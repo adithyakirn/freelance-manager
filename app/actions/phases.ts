@@ -7,6 +7,7 @@ export async function addPhase(
   projectId: string,
   name: string,
   amount: number,
+  description?: string,
 ) {
   const supabase = await createClient();
 
@@ -14,7 +15,9 @@ export async function addPhase(
     project_id: projectId,
     name,
     amount,
+    description: description || null,
     status: "pending",
+    is_completed: false,
   });
 
   if (error) console.error("Error adding phase:", error);
@@ -47,4 +50,75 @@ export async function markPhasePaid(
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/"); // Update dashboard revenue
+}
+
+// Toggle phase completion status
+export async function togglePhaseCompleted(
+  phaseId: string,
+  projectId: string,
+  isCompleted: boolean,
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("phases")
+    .update({ is_completed: isCompleted })
+    .eq("id", phaseId);
+
+  if (error) console.error("Error toggling phase:", error);
+  revalidatePath(`/projects/${projectId}`);
+}
+
+// Update phase description
+export async function updatePhaseDescription(
+  phaseId: string,
+  projectId: string,
+  description: string,
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("phases")
+    .update({ description })
+    .eq("id", phaseId);
+
+  if (error) console.error("Error updating description:", error);
+  revalidatePath(`/projects/${projectId}`);
+}
+
+// Toggle individual feature completion within a phase
+export async function toggleFeatureCompleted(
+  phaseId: string,
+  projectId: string,
+  featureName: string,
+  isCompleted: boolean,
+) {
+  const supabase = await createClient();
+
+  // Get current completed features
+  const { data: phase } = await supabase
+    .from("phases")
+    .select("completed_features")
+    .eq("id", phaseId)
+    .single();
+
+  let completedFeatures: string[] = phase?.completed_features || [];
+
+  if (isCompleted) {
+    // Add to completed
+    if (!completedFeatures.includes(featureName)) {
+      completedFeatures.push(featureName);
+    }
+  } else {
+    // Remove from completed
+    completedFeatures = completedFeatures.filter((f) => f !== featureName);
+  }
+
+  const { error } = await supabase
+    .from("phases")
+    .update({ completed_features: completedFeatures })
+    .eq("id", phaseId);
+
+  if (error) console.error("Error toggling feature:", error);
+  revalidatePath(`/projects/${projectId}`);
 }

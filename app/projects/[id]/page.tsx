@@ -16,6 +16,7 @@ import { GitStatusCard } from "@/components/GitStatusCard";
 import { ApproveProjectButton } from "@/components/ApproveProjectButton";
 import { DeleteProjectButton } from "@/components/DeleteProjectButton";
 import { PaymentsSection } from "@/components/PaymentsSection";
+import { ShareButton } from "@/components/ShareButton";
 
 export default async function ProjectDetailPage({
   params,
@@ -110,10 +111,16 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
-          <div className="flex gap-2 flex-shrink-0">
+          <div className="flex gap-2 shrink-0">
             {project.status === "pending" && (
               <ApproveProjectButton projectId={project.id} />
             )}
+            <ShareButton
+              projectId={project.id}
+              initialShareEnabled={project.share_enabled}
+              initialShareToken={project.share_token}
+              initialProgressStatus={project.progress_status}
+            />
             <DeleteProjectButton projectId={project.id} />
             {project.quotation_url && (
               <a
@@ -132,7 +139,7 @@ export default async function ProjectDetailPage({
       </GlassCard>
 
       {/* Financial Summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8 items-start">
         <GlassCard>
           <div className="flex items-start justify-between">
             <div>
