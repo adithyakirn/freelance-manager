@@ -83,7 +83,7 @@ export async function getProjectByToken(token: string) {
 
   const { data: project, error } = await supabase
     .from("projects")
-    .select("*, phases(*)")
+    .select("*, phases(*), payments(*)")
     .eq("share_token", token)
     .eq("share_enabled", true)
     .single();
