@@ -283,15 +283,17 @@ export function GitStatusCard({
       )}
 
       {/* Repo link */}
-      <a
-        href={repo}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center text-xs text-[#F05032] hover:underline mt-4 pt-3 border-t border-white/5"
-      >
-        <ExternalLink className="w-3 h-3 mr-1" />
-        View Repository
-      </a>
+      {!readOnly && (
+        <a
+          href={repo}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center text-xs text-[#F05032] hover:underline mt-4 pt-3 border-t border-white/5"
+        >
+          <ExternalLink className="w-3 h-3 mr-1" />
+          View Repository
+        </a>
+      )}
     </GlassCard>
   );
 }

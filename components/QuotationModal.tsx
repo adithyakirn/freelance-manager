@@ -61,7 +61,9 @@ export function QuotationModal({ url }: QuotationModalProps) {
                       {/* Content */}
                       <div className="flex-1 bg-neutral-900 relative">
                         <iframe
-                          src={url}
+                          src={`https://docs.google.com/gview?url=${encodeURIComponent(
+                            url,
+                          )}&embedded=true`}
                           className="w-full h-full border-none"
                           title="Project Quotation"
                         />

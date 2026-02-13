@@ -139,35 +139,44 @@ export function SharedPhaseList({
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="px-4 pb-4 ml-17 border-t border-white/5 mt-0 pt-3 space-y-2">
-                    {features.map((feature, i) => {
-                      const isFeatureCompleted =
-                        completedFeatures.includes(feature);
-                      return (
-                        <div key={i} className="flex items-center gap-3">
-                          <div
-                            className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                              isFeatureCompleted
-                                ? "bg-green-500 border-green-500"
-                                : "border-gray-600"
-                            }`}
-                          >
-                            {isFeatureCompleted && (
-                              <CheckCircle className="w-3 h-3 text-white" />
-                            )}
+                  <div className="px-4 pb-4 ml-4 sm:ml-12 md:ml-16 lg:ml-17 border-t border-white/5 mt-0 pt-3 space-y-2">
+                    {features
+                      .sort((a, b) => {
+                        const isACompleted = completedFeatures.includes(a);
+                        const isBCompleted = completedFeatures.includes(b);
+                        // Sort completed first: if A is done and B is not, A (-1) comes first.
+                        if (isACompleted && !isBCompleted) return -1;
+                        if (!isACompleted && isBCompleted) return 1;
+                        return 0;
+                      })
+                      .map((feature, i) => {
+                        const isFeatureCompleted =
+                          completedFeatures.includes(feature);
+                        return (
+                          <div key={i} className="flex items-start gap-3">
+                            <div
+                              className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 ${
+                                isFeatureCompleted
+                                  ? "bg-green-500 border-green-500"
+                                  : "border-gray-600"
+                              }`}
+                            >
+                              {isFeatureCompleted && (
+                                <CheckCircle className="w-3 h-3 text-white" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-sm leading-tight ${
+                                isFeatureCompleted
+                                  ? "text-gray-500 line-through"
+                                  : "text-gray-300"
+                              }`}
+                            >
+                              {feature}
+                            </span>
                           </div>
-                          <span
-                            className={`text-sm ${
-                              isFeatureCompleted
-                                ? "text-gray-500 line-through"
-                                : "text-gray-300"
-                            }`}
-                          >
-                            {feature}
-                          </span>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 </motion.div>
               )}
