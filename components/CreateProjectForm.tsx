@@ -27,7 +27,9 @@ function SubmitButton() {
 
 export function CreateProjectForm() {
   const [quotationName, setQuotationName] = useState<string | null>(null);
+
   const [logoName, setLogoName] = useState<string | null>(null);
+  const [clientSource, setClientSource] = useState<string>("");
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -61,7 +63,7 @@ export function CreateProjectForm() {
         <select
           name="status"
           className={cn(
-            "flex h-11 w-full rounded-[var(--radius-md)] border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white",
+            "w-full rounded-[var(--radius-md)] border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white",
           )}
         >
           <option className="bg-[#1C1C1E]" value="ongoing">
@@ -101,8 +103,10 @@ export function CreateProjectForm() {
           </label>
           <select
             name="clientSource"
+            value={clientSource}
+            onChange={(e) => setClientSource(e.target.value)}
             className={cn(
-              "flex h-11 w-full rounded-md border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white appearance-none cursor-pointer",
+              "flex w-full rounded-md border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white appearance-none cursor-pointer",
             )}
           >
             <option className="bg-[#1C1C1E] text-white" value="">
@@ -151,7 +155,7 @@ export function CreateProjectForm() {
           <select
             name="workType"
             className={cn(
-              "flex h-11 w-full rounded-md border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white appearance-none cursor-pointer",
+              "flex w-full rounded-md border border-white/10 bg-[#1C1C1E] px-3 py-2 text-sm shadow-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D53231] focus-visible:border-[#D53231] disabled:cursor-not-allowed disabled:opacity-50 text-white appearance-none cursor-pointer",
             )}
           >
             <option className="bg-[#1C1C1E] text-white" value="">

@@ -47,10 +47,24 @@ export async function createProject(formData: FormData) {
       logoUrl = await uploadFile(logoFile, path);
     }
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    const referralName = formData.get("referralName") as string;
+
     const { error } = await supabase.from("projects").insert({
       name,
       status,
-      client_details: { email: clientEmail },
+      user_id: user.id,
+      client_details: {
+        email: clientEmail,
+        referral_name: clientSource === "referral" ? referralName : undefined,
+      },
       client_source: clientSource || null,
       work_type: workType || null,
       quotation_url: quotationUrl,
